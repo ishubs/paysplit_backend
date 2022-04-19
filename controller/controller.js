@@ -20,14 +20,11 @@ exports.selectcontacts = (req, res) => {
   var numbers = req.body.numbers;
   var message = {
     data:  {
-      vpa: '6360861215@ybl', // or can be john@ybl or mobileNo@upi
-      payeeName: 'Shubham Giri',
-      amount: '100',
-      transactionRef: 'aasf-332-aoei-fn'
+      uri: req.body.uri, // or can be john@ybl or mobileNo@upi
     },
     notification: {
-      title: "Paysplit",
-      body: "Test message by Paysplit",
+      title: "LetsPay",
+      body: "Someone is requesting money.",
     },
     android: {
       priority: "high",
@@ -49,8 +46,8 @@ exports.selectcontacts = (req, res) => {
   const getdata = async () => {
     const tokenArray = [];
     for (i = 0; i < numbers.length; i++) {
-      const rawdata = await db.collection("tokens").doc(numbers[i]).get();
-      tokenArray.push(rawdata._fieldsProto.token.stringValue);
+      let number = '+91' + numbers[i]
+	await db.collection("tokens").doc(number).get().then(res=>tokenArray.push(res._fieldsProto.token.stringValue));
     }
     console.log(tokenArray);
     return tokenArray;
@@ -82,7 +79,7 @@ exports.contactsync = (req, res) => {
     var a = req.body.contacts;
   
       var c = [];
-    a.sort(function (a, b) {
+	a.sort(function (a, b) {
       if (a.phone.length > 10) { a.phone = a.phone.substring(3, 13); console.log(a.phone)}
         return a.phone - b.phone;
       });
@@ -91,6 +88,7 @@ exports.contactsync = (req, res) => {
       let i = 0, j = 0;
     while (i < a.length && j < b.length) {
       console.log(a[i].phone.length)
+	console.log(a[i].phone)
         if (a[i].phone == b[j]) {
           c.push(a[i]);
           ++i;
